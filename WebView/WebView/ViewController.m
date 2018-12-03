@@ -34,7 +34,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
     
     [[NSURLCache sharedURLCache]removeAllCachedResponses];
 
@@ -58,6 +58,14 @@
     [self.view addSubview:_webView];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(wxPaySuccess) name:@"paySuccess" object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(wxPayFails) name:@"payFails" object:nil];
+    
+    
+    
+//    UIButton *but = [[UIButton alloc]initWithFrame:CGRectMake(100, 100, 100, 100)];
+//    but.backgroundColor = [UIColor redColor];
+//    [but addTarget:self action:@selector(callWeChat) forControlEvents:UIControlEventTouchUpInside];
+//    [self.view addSubview:but];
+    
 
 }
 
@@ -72,11 +80,7 @@
 }
 
 - (void)webViewDidStartLoad:(UIWebView *)webView{
-    
     NSLog(@"开始调用了");
-    
-  
-    
 }
 
 - (void)wxPaySuccess{
@@ -98,50 +102,16 @@
     JSAndOCTask *testJO=[JSAndOCTask new];
     __weak __typeof(&*self)blockSelf = self;
   
-    testJO.wxshare = ^(NSString *link, NSString *img, NSString *desc, NSString *title) {
-        NSArray* imageArray = @[img];
-        NSMutableDictionary *param =[[NSMutableDictionary alloc]init];
-        [param SSDKSetupShareParamsByText:desc
-                                   images:imageArray
-                                      url:[NSURL URLWithString:link]
-                                    title:title
-                                     type:SSDKContentTypeAuto];
-        
-        [[NSOperationQueue mainQueue] addOperationWithBlock:^{//在主线程中调用
-            
-            [ShareSDK showShareActionSheet:nil items:nil shareParams:param onShareStateChanged:^(SSDKResponseState state, SSDKPlatformType platformType, NSDictionary *userData, SSDKContentEntity *contentEntity, NSError *error, BOOL end) {
-                switch (state) {
-                    case SSDKResponseStateSuccess:
-                    {
-                        [blockSelf.webView stringByEvaluatingJavaScriptFromString:@"share_success()"];
-                        
-                        break;
-                    }
-                    case SSDKResponseStateFail:
-                    {
-                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"分享失败"
-                                                                        message:[NSString stringWithFormat:@"%@",error]
-                                                                       delegate:nil
-                                                              cancelButtonTitle:@"OK"
-                                                              otherButtonTitles:nil, nil];
-                        [alert show];
-                        break;
-                    }
-                    default:
-                        break;
-                }
-            }];
-            
-        }];
-        
+    testJO.wxshare = ^(NSString *txt) {
+        UIPasteboard *board = [UIPasteboard generalPasteboard];
+        board.strings = @[txt];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [blockSelf callWeChat];
+        });
     };
-    
     testJO.apiPayBlock = ^(NSString *url) {
         [blockSelf zhifubaoPay:url];
     };
-   
-
-    
     testJO.dhmap = ^(CLLocationCoordinate2D location) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [blockSelf navLocation:location];
@@ -156,14 +126,6 @@
 }
 
 - (void)zhifubaoPay:(NSString *)url{
-//    NSArray *arr = [url componentsSeparatedByString:@"*****"];
-//    
-//    url = arr[0];
-//    self.oid = arr[1];
-//    
-//    url =[url stringByReplacingOccurrencesOfString:@"&amp;" withString:@"&"];
-//    url =[url stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-    
     //支付
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{//在主线程中调用
         // UI更新代码
@@ -350,6 +312,40 @@
     [MKMapItem openMapsWithItems:items launchOptions:dic];
     
 }
+
+
+//跳转到微信
+
+- (void)callWeChat {
+    if([self isWeChatInstalled]) {
+        NSString* qqUrl = [NSString stringWithFormat:@"weixin://"];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:qqUrl]];
+    }
+    
+}
+
+- (BOOL)isWeChatInstalled{
+    
+    NSString*urlStr = [NSString stringWithFormat:@"weixin://"];
+    
+    NSURL*url = [NSURL URLWithString:urlStr];
+    
+    if([[UIApplication sharedApplication]canOpenURL:url]){
+        
+        return YES;
+    }
+    else{
+       UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"尚未安装微信，请安装微信后重试" preferredStyle:UIAlertControllerStyleAlert];
+        [alert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
+        return NO;
+        
+    }
+    
+}
+
 
 
 @end

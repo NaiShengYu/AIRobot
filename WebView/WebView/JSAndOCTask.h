@@ -21,7 +21,7 @@
 - (void)wxpay:(NSString *)ID;
 
 //微信分享
-- (void)share:(NSString *)ID;
+- (void)wxshare:(NSString *)ID;
 
 - (void)scan;
 
@@ -32,7 +32,7 @@
 @end
 @interface JSAndOCTask : NSObject <TestJSObjectProtocol>
 
-@property (nonatomic,copy)void (^wxshare)(NSString *link ,NSString *img,NSString *desc,NSString *title);
+@property (nonatomic,copy)void (^wxshare)(NSString *txt);
 
 @property (nonatomic,copy)void (^apiPayBlock)(NSString *url);
 

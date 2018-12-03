@@ -33,7 +33,6 @@
     UINavigationController *nav = [[UINavigationController alloc]initWithRootViewController:[[ViewController alloc]init]];
     _window.rootViewController =nav;
     
-    
     [ShareSDK registerActivePlatforms:@[
                                         @(SSDKPlatformTypeWechat)
                                         ]

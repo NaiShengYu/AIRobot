@@ -16,20 +16,15 @@
 @end
 @implementation JSAndOCTask
 
-- (void)share:(NSString *)ID{
-    NSLog(@"%@",ID);
-    NSData *data =[ID dataUsingEncoding:NSUTF8StringEncoding];
-    NSDictionary *result =[NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingAllowFragments error:nil];
+- (void)wxshare:(NSString *)ID{
+  
     if (self.wxshare) {
-        self.wxshare(result[@"share_url"], result[@"share_img"], result[@"share_desc"], result[@"share_title"]);
+        self.wxshare(ID);
     }
 }
 
 - (void)share:(NSString *)link AndImg:(NSString *)img AndDesc:(NSString *)desc AndTitle:(NSString *)title{
-    
-    if (self.wxshare) {
-        self.wxshare(link, img, desc, title);
-    }
+ 
 }
 - (void)webapp_alipay:(NSString *)url{
     if (self.apiPayBlock) {

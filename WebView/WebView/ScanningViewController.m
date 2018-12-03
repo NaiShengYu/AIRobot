@@ -29,6 +29,8 @@ static const CGFloat kMargin = 38;
     //    [self.navigationItem.backBarButtonItem setTitleTextAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:5]} forState:UIControlStateNormal];
     //
     //设置导航栏返回按钮
+    
+    
     UIBarButtonItem* leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"back"] style:UIBarButtonItemStylePlain target:self action:@selector(backToMainVC)];
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     
